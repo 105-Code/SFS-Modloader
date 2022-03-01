@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.IO;
+using UnityEngine;
 
 namespace ModLoader
 {
@@ -10,28 +8,117 @@ namespace ModLoader
     /// This interface is a mod entry point. so if you want to create mod, you need implement this interface
     /// in the main class, but only in the main class to prevent errors.
     /// </summary>
-    public interface SFSMod
+    public abstract class SFSMod
     {
 
-        /// <summary>
-        ///     The modder can specify mod name in this function.
-        /// </summary>
-        string getModName();
+        private string _name;
+        private string _author;
+        private string _modLoderVersion;
+        private string _version;
+        private string _description;
+        //private Type[] _dependencies;
+        private AssetBundle _assets;
+        private string _assetsFilename;
 
         /// <summary>
-        ///  get the creator mod.
+        ///     Get mod name
         /// </summary>
-        string getModAuthor();
+        public string Name
+        {
+            get { return this._name; }
+        }
 
         /// <summary>
-        ///     This is very important,because mod loader use this method to execute your mod.  
+        ///     Get who create this mod
         /// </summary>
-        void load();
+        public string Author
+        {
+            get { return this._author; }
+        }
 
         /// <summary>
-        ///     For now this method do nothing, so you dont neet write nothing here. 
+        ///     Get what modloader version need
         /// </summary>
-        void unload();
+        /// <value>
+        ///     v1.0.x
+        /// </value>
+        public string ModLoderVersion
+        {
+            get { return this._modLoderVersion; }
+        }
+
+        public string Version
+        {
+            get { return this._version; }
+        }
+
+        /// <summary>
+        ///     get a descripton about what do this mod
+        /// </summary>
+        public string Description
+        {
+            get { return this._description; }
+        }
+
+        /// <summary>
+        ///     get the list of mods need it to work.
+        /// </summary>
+        //public Type[] Dependencies
+        //{
+        //    get { return this._dependencies; }
+        //}
+
+        /// <summary>
+        ///     get the assets used for this mod.
+        /// </summary>
+        public AssetBundle Assets
+        {
+            get { return this._assets; }
+        }
+
+
+        protected SFSMod(string name, string author, string modLoderVersion, string version, string description = "", string assetsFilename = null /*,Type[] dependencies = null*/ )
+        {
+            _name = name;
+            _author = author;
+            _modLoderVersion = modLoderVersion;
+            _version = version;
+            _description = description;
+            //_dependencies = dependencies;
+            _assetsFilename = assetsFilename;
+        }
+
+        /// <summary>
+        /// This method load assets from mod folder
+        /// </summary>
+        public void loadAssets()
+        {
+            if(this._assetsFilename == null || this._assetsFilename == "")
+            {
+                return;
+            }
+
+            string assetFilePath = Path.Combine(FileLocations.BaseFolder, "MODS", this._name, this._assetsFilename);
+            AssetBundle assets = AssetBundle.LoadFromFile(assetFilePath);
+            if (assets == null)
+            {
+                throw new Exception("Assets file not found");
+            }
+            this._assets = assets;
+            
+            Debug.Log(this._name+" assets loaded!");
+        }
+
+
+        /// <summary>
+        ///     This method is called for modloader to start your mod 
+        /// </summary>
+        public abstract void load();
+
+        /// <summary>
+        ///     This method is called for modloader to remove your mod. 
+        /// </summary>
+        public abstract void unload();
 
     }
 }
