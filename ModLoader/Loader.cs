@@ -1,14 +1,13 @@
-﻿using SFS;
-using HarmonyLib;
+﻿using HarmonyLib;
 using UnityEngine;
 using SFS.IO;
 using System.Collections.Generic;
 using System;
-using System.Linq.Expressions;
-using SFS.Builds;
 using System.Reflection;
 using UnityEngine.SceneManagement;
 using UnityEngine.Events;
+using System.IO;
+using System.Text.RegularExpressions;
 
 namespace ModLoader
 {
@@ -18,58 +17,68 @@ namespace ModLoader
     public class Loader : MonoBehaviour
     {
 
-
-        // This is de main logger, use this to show message in console
-        public static ModConsole logger;
-
-        private static Harmony patcher;
-
-        // Thiss save Loader instance
-        public static Loader modLoader;
+        // This save Loader instance
+        public static Loader main;
 
         // This save the gameObject that implement Loader class
         public static GameObject root;
-        public static BaseAssigner baseAssigner;
 
-        // List of all mods loaded in the folder MODS
-        private SFSMod[] modList;
+        private static FolderPath _modsFolder;
 
-        public Loader()
+        private const string modLoderVersion = "v1.1.0";
+
+        public static FolderPath ModsFolder
         {
-            Loader.logger = new ModConsole();
-            Loader.modLoader = this;
-        }
-
-        public void Awake()
-        {
-            this.modList = new SFSMod[] { };
-            Loader.logger.log("Loading Mods", "ModLoader");
-            
-            // If not existe is created and pass FolderPath
-            FolderPath modFolder = FileLocations.BaseFolder.Extend("MODS").CreateFolder();
-            
-            // get list of files into MODS folder
-            IEnumerable<FilePath> files = modFolder.GetFilesInFolder(false);
-            foreach (FilePath file in files)
+            get
             {
-                // get only dll files in mods folder
-                if (file.Extension == "dll")
-                {
-                    Loader.logger.log("Reading " + file.FileName, "ModLoader");
-                    // try to load mod
-                    this.loadMod(modFolder.GetRelativePath(file.FileName) + "/" + file.FileName);
-                }
+                return _modsFolder;
             }
         }
 
-        public SFSMod[] getModList()
+        // List of all mods loaded in the folder MODS
+        private SFSMod[] _modList;
+        /*public SFSMod[] ModList
         {
-            return this.modList;
+            get
+        }*/
+
+        private void Awake()
+        {
+            Loader.main = this;
+            this._modList = new SFSMod[] { };
+            this.suscribeOnChangeScene(this.OnSceneLoaded);
+            _modsFolder = FileLocations.BaseFolder.Extend("MODS").CreateFolder();
         }
 
-        void OnEnable()
+        private void Start()
         {
-            SceneManager.sceneLoaded += OnSceneLoaded;
+            IEnumerable<FolderPath> modsFolders =  _modsFolder.GetFoldersInFolder(false);
+            string basePath = Path.Combine(FileLocations.BaseFolder, "MODS");
+            Debug.Log("Reading Mods");
+            Debug.LogError(new Exception("Error custom"));
+
+            foreach (FolderPath folder in modsFolders)
+            {
+                string fileModPath = Path.Combine(basePath, folder.FolderName, folder.FolderName+".dll");
+                try
+                {
+                    SFSMod mod = this.loadMod(fileModPath);
+                    this._modList.AddItem(mod);
+                    Debug.Log(mod.Name+" Loaded");
+                }
+                catch(Exception e)
+                {
+                    Debug.LogError("Error Reading "+folder.FolderName+" folder");
+                    Debug.LogError(e);
+                }
+                
+            }
+            
+        }
+
+        private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+        {
+            Debug.Log("Scene change to "+scene.name);
         }
 
         public bool suscribeOnChangeScene(UnityAction<Scene, LoadSceneMode> method)
@@ -78,50 +87,71 @@ namespace ModLoader
             return true;
         }
 
-        void OnSceneLoaded(Scene scene, LoadSceneMode mode)
-        {
-            logger.log("scene change to "+ scene.name, "ModLoader");
-        }
-
-        private void loadMod(string path)
+        private SFSMod loadMod(string path)
         {
             Assembly assembly = Assembly.LoadFrom(path);
             SFSMod mod = null;
-            logger.log("Searching SFSMod interface", "ModLoader");
-            // we search SFSMod interface in dll file dounede in MODS folder
+
             foreach (Type typeClass in assembly.GetTypes())
             {
-                Type inteface = typeClass.GetInterface(typeof(SFSMod).Name);
-                if(inteface == null)
+                if (typeClass.IsSubclassOf(typeof(SFSMod)))
                 {
-                    continue;
+                    mod = (Activator.CreateInstance(typeClass) as SFSMod);
+                    break;
                 }
-                mod = (Activator.CreateInstance(typeClass) as SFSMod);                 
-            }
-            
-            if (mod == null)
-            {
-                logger.log("File " + path + " don't have SFSMod interface","ModLoader");
-                return;
+                
             }
 
-            Loader.logger.log("SFSMod interface found", "ModLoader");
-
-            try
+            if(mod == null)
             {
-                logger.log("Loading " + mod.getModName(), mod.getModAuthor());
+                throw new Exception("SFSmod class not found");
+            }
 
-                // execute entry point of mod
+            if (verifyModLoaderVersion(mod.ModLoderVersion))
+            {
+                mod.loadAssets();
                 mod.load();
-                logger.log("Loaded " + mod.getModName(), mod.getModAuthor());
-                this.modList.AddItem(mod);
+
+                return mod;
             }
-            catch( Exception e)
-            {
-                logger.log("Error loading " + mod.getModName(), mod.getModAuthor());
-                logger.logError(e);
-            }
+            throw new Exception(mod.Name+" need ModLoader " + mod.Version);
         }
+
+        /// <summary>
+        /// get if the mod have a valid version format and valid version for this modloader version
+        /// </summary>
+        /// <param name="version"> mod version</param>
+        /// <returns>true if valid version</returns>
+        private bool verifyModLoaderVersion(string version)
+        {
+            Regex rx = new Regex(@"\bv([0-9]|[1-9][0-9]).([0-9]|[1-9][0-9]|x).([0-9]|[1-9][0-9]|x)\b", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+            // have the formal v1.x.x
+            if (rx.IsMatch(version))
+            {
+                string[] modVersion = version.Split('.');
+                string[] target = modLoderVersion.Split('.');
+                
+                if(modVersion.Length == target.Length)
+                {
+                    for (short index = 0; index < target.Length; index++)
+                    {
+                        if (modVersion[index] == "x")
+                        {
+                            continue;
+                        }
+                        if (modVersion[index] != target[index])
+                        {
+                            return false;
+                        }
+                    }
+                    // have the format and is valid version for this modloader version
+                    return true; 
+
+                }
+               
+            }
+            return false;
+        } 
 
         /// <summary>
         /// This is the mod loader entry point, this is the method execute after be injected in the game
@@ -129,8 +159,8 @@ namespace ModLoader
         /// <param name="args"></param>
         public static void Main(string[] args)
         {
-            Loader.patcher = new Harmony("SFS.mod.loader");
-            Loader.patcher.PatchAll();
+            Harmony patcher = new Harmony("SFS.mod.loader");
+            patcher.PatchAll();
         }
     }
 
