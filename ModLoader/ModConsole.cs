@@ -21,6 +21,12 @@ namespace ModLoader
 
 		private static FilePath logFile;
 
+		private const int CONSOLE_HIDE = 0;
+
+		private const int CONSOLE_SHOW = 5;
+
+		private bool visible = false;
+
 		public ModConsole()
 		{
 			ModConsole.AllocConsole();
@@ -33,31 +39,26 @@ namespace ModLoader
 			ModConsole.logFile = FileLocations.BaseFolder.Extend("logs").CreateFolder().ExtendToFile(current.Year + "-" + current.Month + "-" + current.Day+".txt");
 		}
 
-		private void hideConsole()
-		{
-			ModConsole.ShowWindow(ModConsole.GetConsoleWindow(), 0);
-			this.visible = false;
-		}
-
-		private void showConsole()
-		{
-			ModConsole.ShowWindow(ModConsole.GetConsoleWindow(), 5);
-			this.visible = true;
-		}
-
+		/// <summary>
+		/// call this method if you want to hiden or show console
+		/// </summary>
 		public void toggleConsole()
 		{
-			bool flag = this.visible;
-			if (flag)
+			if (this.visible)
 			{
-				this.hideConsole();
+				ModConsole.ShowWindow(ModConsole.GetConsoleWindow(), CONSOLE_HIDE);
 			}
 			else
 			{
-				this.showConsole();
+				ModConsole.ShowWindow(ModConsole.GetConsoleWindow(), CONSOLE_SHOW);
 			}
+			this.visible = !this.visible;
 		}
 
+		/// <summary>
+		/// if you want to print a error with format
+		/// </summary>
+		/// <param name="e">Exception of your error</param>
 		public void logError(Exception e)
 		{
 			StackTrace stackTrace = new StackTrace(e, true);
@@ -65,63 +66,34 @@ namespace ModLoader
 			int fileColumnNumber = frame.GetFileColumnNumber();
 			int fileLineNumber = frame.GetFileLineNumber();
 			string fileName = frame.GetFileName();
-			this.tryLogCustom("##[ERROR]##", "ErrorReporter", LogType.Error);
-			this.tryLogCustom(e.Message , "ErrorReporter", LogType.Error);
-			this.tryLogCustom(e.StackTrace, "ErrorReporter", LogType.Error);
-			this.tryLogCustom(fileLineNumber+":"+ fileColumnNumber + "@" + fileName, "ErrorReporter", LogType.Error);
-			this.tryLogCustom("##[ERROR]##", "ErrorReporter", LogType.Error);
+			this.log("##[ERROR]##", "ErrorReporter", LogType.Error);
+			this.log(e.Message , "ErrorReporter", LogType.Error);
+			this.log(e.StackTrace, "ErrorReporter", LogType.Error);
+			this.log(fileLineNumber+":"+ fileColumnNumber + "@" + fileName, "ErrorReporter", LogType.Error);
+			this.log("##[ERROR]##", "ErrorReporter", LogType.Error);
 		}
 
-		public void log(string msg, string tag)
+		/// <summary>
+		/// Print message in console with format 
+		/// </summary>
+		/// <param name="msg">Message that you want to ptint</param>
+		/// <param name="tag">tag to identify your log</param>
+		/// <param name="type">what kind of log is it</param>
+		public void log(string msg, string tag, LogType type = LogType.Log)
 		{
 			string logMessage = "[" + tag + "]: " + msg;
 			Console.WriteLine(logMessage);
 			logFile.AppendText(logMessage+"\n");
 		}
 
+		/// <summary>
+		///  Print message in console
+		/// </summary>
+		/// <param name="msg">message that you want to print</param>
 		public void log(string msg)
 		{
 			this.log(msg, "Unkwn");
 		}
 
-		private void tryLogCustom(string msg, string tag, LogType type)
-		{
-			bool flag = this.logCustom == null;
-			if (flag)
-			{
-				this.log(msg, tag);
-			}
-			else
-			{
-				msg = "[" + tag + "]: " + msg;
-				try
-				{
-					this.logCustom(msg, type);
-				}
-				catch (Exception e)
-				{
-					this.logError(e);
-				}
-			}
-		}
-
-		private void tryLogCustom(string msg, LogType type)
-		{
-			this.tryLogCustom(msg, "Unkwn", type);
-		}
-
-		public void setLogger(Action<string, LogType> logfunc)
-		{
-			this.logCustom = logfunc;
-		}
-
-		private const int SW_HIDE = 0;
-
-		private const int SW_SHOW = 5;
-
-		private bool visible = false;
-
-
-		private Action<string, LogType> logCustom;
 	}
 }
