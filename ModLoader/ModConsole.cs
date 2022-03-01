@@ -8,8 +8,10 @@ using SFS.IO;
 namespace ModLoader
 {
 
-    public class ModConsole
-    {
+    public class ModConsole : MonoBehaviour
+	{
+		public static GameObject root;
+
 		[DllImport("kernel32.dll")]
 		private static extern IntPtr GetConsoleWindow();
 
@@ -19,7 +21,7 @@ namespace ModLoader
 		[DllImport("Kernel32.dll")]
 		private static extern bool AllocConsole();
 
-		private static FilePath logFile;
+		private FilePath logFile;
 
 		private const int CONSOLE_HIDE = 0;
 
@@ -27,7 +29,7 @@ namespace ModLoader
 
 		private bool visible = false;
 
-		public ModConsole()
+		private void Awake()
 		{
 			ModConsole.AllocConsole();
 			Console.SetOut(new StreamWriter(Console.OpenStandardOutput())
@@ -35,8 +37,18 @@ namespace ModLoader
 				AutoFlush = true
 			});
 			this.visible = true;
-			DateTime current = new DateTime();
-			ModConsole.logFile = FileLocations.BaseFolder.Extend("logs").CreateFolder().ExtendToFile(current.Year + "-" + current.Month + "-" + current.Day+".txt");
+			string date = string.Format("{0:yyyy_MM_dd}", DateTime.UtcNow);
+			this.logFile = FileLocations.BaseFolder.Extend("logs").CreateFolder().ExtendToFile(date+".txt");
+		}
+
+		private void OnEnable()
+		{
+			Application.logMessageReceivedThreaded += this.handleLog;
+		}
+
+		private void OnDisable()
+		{
+			Application.logMessageReceivedThreaded -= this.handleLog;
 		}
 
 		/// <summary>
@@ -55,44 +67,52 @@ namespace ModLoader
 			this.visible = !this.visible;
 		}
 
-		/// <summary>
-		/// if you want to print a error with format
-		/// </summary>
-		/// <param name="e">Exception of your error</param>
-		public void logError(Exception e)
+		private void log(string message)
 		{
-			StackTrace stackTrace = new StackTrace(e, true);
-			StackFrame frame = stackTrace.GetFrame(0);
-			int fileColumnNumber = frame.GetFileColumnNumber();
-			int fileLineNumber = frame.GetFileLineNumber();
-			string fileName = frame.GetFileName();
-			this.log("##[ERROR]##", "ErrorReporter", LogType.Error);
-			this.log(e.Message , "ErrorReporter", LogType.Error);
-			this.log(e.StackTrace, "ErrorReporter", LogType.Error);
-			this.log(fileLineNumber+":"+ fileColumnNumber + "@" + fileName, "ErrorReporter", LogType.Error);
-			this.log("##[ERROR]##", "ErrorReporter", LogType.Error);
+			Console.WriteLine($"LOG: {message}");
+			this.logFile.AppendText($"LOG: {message}");
 		}
 
-		/// <summary>
-		/// Print message in console with format 
-		/// </summary>
-		/// <param name="msg">Message that you want to ptint</param>
-		/// <param name="tag">tag to identify your log</param>
-		/// <param name="type">what kind of log is it</param>
-		public void log(string msg, string tag, LogType type = LogType.Log)
+		private void error(string message)
 		{
-			string logMessage = "[" + tag + "]: " + msg;
-			Console.WriteLine(logMessage);
-			logFile.AppendText(logMessage+"\n");
+			Console.WriteLine($"ERROR: {message}");
+			this.logFile.AppendText($"ERROR: {message}");
 		}
 
-		/// <summary>
-		///  Print message in console
-		/// </summary>
-		/// <param name="msg">message that you want to print</param>
-		public void log(string msg)
+		private void exception(string message, string stackTrace)
 		{
-			this.log(msg, "Unkwn");
+			Console.WriteLine($"EXCEPTION: {message}");
+			Console.WriteLine(stackTrace);
+			this.logFile.AppendText($"EXCEPTION: {message}");
+			this.logFile.AppendText(stackTrace);
+		}
+
+		private void warning(string message, string stackTrace)
+		{
+			Console.WriteLine($"WARNING: {message}");
+			Console.WriteLine(stackTrace);
+			this.logFile.AppendText($"WARNING: {message}");
+			this.logFile.AppendText(stackTrace);
+		}
+
+		private void handleLog(string message, string stackTrace, LogType type)
+		{
+			switch (type)
+			{
+				case LogType.Error:
+					this.error(message);
+					break;
+				case LogType.Exception:
+					this.exception(message, stackTrace);
+					break;
+				case LogType.Warning:
+					this.warning(message, stackTrace);
+					break;
+				default:
+					this.log(message);
+					break;
+			}
+			
 		}
 
 	}
