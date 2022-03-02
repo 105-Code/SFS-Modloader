@@ -35,103 +35,203 @@ namespace ModLoader
             }
         }
 
-        // List of all mods loaded in the folder MODS
-        private SFSMod[] _modList;
-        /*public SFSMod[] ModList
-        {
-            get
-        }*/
+        private List<string> _modsLoaded;
 
+        // List of all mods loaded in the folder MODS
+        private Dictionary<string, SFSMod> _modList;
+
+        /// <summary>
+        /// first method executed. Save loader instance in static var and suscribe to scene event. 
+        /// </summary>
         private void Awake()
         {
             Loader.main = this;
-            this._modList = new SFSMod[] { };
             this.suscribeOnChangeScene(this.OnSceneLoaded);
             _modsFolder = FileLocations.BaseFolder.Extend("MODS").CreateFolder();
         }
 
+        /// <summary>
+        /// This method start to read mods and is executed automatically when this class is created after Awake method. 
+        /// </summary>
         private void Start()
         {
-            IEnumerable<FolderPath> modsFolders =  _modsFolder.GetFoldersInFolder(false);
-            string basePath = Path.Combine(FileLocations.BaseFolder, "MODS");
-            Debug.Log("Reading Mods");
-            Debug.LogError(new Exception("Error custom"));
-
-            foreach (FolderPath folder in modsFolders)
+            Debug.Log("Reading mods");
+            this._modList = this.getModList();
+            this._modsLoaded = new List<string>();
+            
+            foreach (SFSMod mod in this._modList.Values)
             {
-                string fileModPath = Path.Combine(basePath, folder.FolderName, folder.FolderName+".dll");
+                if(this._modsLoaded.Contains(mod.ModId))
+                {
+                    continue;
+                }
+
                 try
                 {
-                    SFSMod mod = this.loadMod(fileModPath);
-                    this._modList.AddItem(mod);
-                    Debug.Log(mod.Name+" Loaded");
+                    this.loadMod(mod);
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
-                    Debug.LogError("Error Reading "+folder.FolderName+" folder");
-                    Debug.LogError(e);
+                    Debug.LogException(e);
                 }
-                
             }
-            
-        }
-
-        private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
-        {
-            Debug.Log("Scene change to "+scene.name);
-        }
-
-        public bool suscribeOnChangeScene(UnityAction<Scene, LoadSceneMode> method)
-        {
-            SceneManager.sceneLoaded += method;
-            return true;
-        }
-
-        private SFSMod loadMod(string path)
-        {
-            Assembly assembly = Assembly.LoadFrom(path);
-            SFSMod mod = null;
-
-            foreach (Type typeClass in assembly.GetTypes())
-            {
-                if (typeClass.IsSubclassOf(typeof(SFSMod)))
-                {
-                    mod = (Activator.CreateInstance(typeClass) as SFSMod);
-                    break;
-                }
-                
-            }
-
-            if(mod == null)
-            {
-                throw new Exception("SFSmod class not found");
-            }
-
-            if (verifyModLoaderVersion(mod.ModLoderVersion))
-            {
-                mod.loadAssets();
-                mod.load();
-
-                return mod;
-            }
-            throw new Exception(mod.Name+" need ModLoader " + mod.Version);
         }
 
         /// <summary>
-        /// get if the mod have a valid version format and valid version for this modloader version
+        /// get mod instance.
         /// </summary>
-        /// <param name="version"> mod version</param>
-        /// <returns>true if valid version</returns>
-        private bool verifyModLoaderVersion(string version)
+        /// <param name="modId">Mod ID you need</param>
+        /// <returns>instance mod</returns>
+        public SFSMod getMod(string modId)
+        {
+            return this._modList[modId];
+        }
+
+        /// <summary>
+        ///     This method read MODS folder and identify what is the entry point for each folder.
+        /// </summary>
+        /// <returns> dictionary whit modid as key and SFSMod instance as value</returns>
+        private Dictionary<string, SFSMod> getModList()
+        {
+            Dictionary<string, SFSMod> modList = new Dictionary<string, SFSMod>();
+
+            // get list of mod Folders in MODS folder
+            IEnumerable<FolderPath> modsFolders = _modsFolder.GetFoldersInFolder(false);
+            string basePath = Path.Combine(FileLocations.BaseFolder, "MODS");
+
+            foreach (FolderPath folder in modsFolders)
+            {
+                string fileModPath = Path.Combine(basePath, folder.FolderName, folder.FolderName + ".dll");
+                try
+                {
+                    // get mod assembly
+                    Assembly assembly = Assembly.LoadFrom(fileModPath);
+                    SFSMod mod = null;
+
+                    // verfiy if hace SFSMod class
+                    foreach (Type typeClass in assembly.GetTypes())
+                    {
+                        if (typeClass.IsSubclassOf(typeof(SFSMod)))
+                        {
+                            mod = (Activator.CreateInstance(typeClass) as SFSMod);
+                            break;
+                        }
+
+                    }
+
+                    if (mod == null)
+                    {
+                        throw new Exception(folder.FolderName+" entry point not found");
+
+                    }
+
+                    if (modList.ContainsKey(mod.ModId))
+                    {
+                        throw new Exception("Already existe another mod whit id "+mod.ModId);
+                    }
+
+                    modList.Add(mod.ModId, mod);
+                }
+                catch (Exception e)
+                {
+                    Debug.LogException(e);
+                }
+
+            }
+            return modList;
+        }
+
+        /// <summary>
+        /// Load mod dependecies and chec if is already loaded and check their version.
+        /// </summary>
+        /// <param name="dependencies"> list of dependecies that you need to load first</param>
+        /// <returns> true if all dependecies have been loaded </returns>
+        private bool loadDependencies(SFSModDependencie[] dependencies)
+        {
+            // for each mod dependencie
+            foreach(SFSModDependencie dependencie in dependencies)
+            {
+                // exist mod in the list?
+                if (this._modList.ContainsKey(dependencie.ModId))
+                {
+                    // get mod dependecie
+                    SFSMod dependencieMod = this._modList[dependencie.ModId];
+
+                    // verify if the dependencie version is the same that mod need
+                    bool versionFlag = false;
+                    foreach(string version in dependencie.Versions)
+                    {
+                        if(verifyVersion(dependencieMod.Version, version))
+                        {
+                            versionFlag = true;
+                            break;
+                        }
+                    }
+
+                    // the version is valid
+                    if (versionFlag)
+                    {
+                        // start load dependencie first
+                        this.loadMod(dependencieMod);
+                        continue;
+                    }
+                }
+                // dependencie not exist or is diferent version
+                throw new Exception("Is necesary install " + dependencie.ModId +" "+ string.Join(", ", dependencie.Versions));
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// start to check version mod and run load method
+        /// </summary>
+        /// <param name="mod">mod to start load</param>
+        private void loadMod(SFSMod mod)
+        {
+            // this mod has been load?, if not start load
+            if (this._modsLoaded.Contains(mod.ModId)) 
+            { 
+                return;
+            }
+
+            Debug.Log("Loading " + mod.Name);
+            this._modsLoaded.Add(mod.ModId);
+
+            // check if the version is valid for this modloader version
+            if (verifyVersion(mod.ModLoderVersion, modLoderVersion))
+            {
+                // Have dependencies?
+                if(mod.Dependencies != null)
+                {
+                    // load them
+                    this.loadDependencies(mod.Dependencies);
+                }
+                
+                mod.loadAssets();
+                mod.load();
+                return;
+            }
+
+            // the mod loader version is not valid
+            throw new Exception(mod.Name + " need ModLoader " + mod.Version);
+        }
+
+        /// <summary>
+        /// check two versions string to identify if are the same
+        /// </summary>
+        /// <param name="version1"> version to check</param>
+        /// <param name="version2"> verison to check</param>
+        /// <returns>true if are valid versions</returns>
+        private bool verifyVersion(string version1, string version2)
         {
             Regex rx = new Regex(@"\bv([0-9]|[1-9][0-9]).([0-9]|[1-9][0-9]|x).([0-9]|[1-9][0-9]|x)\b", RegexOptions.Compiled | RegexOptions.IgnoreCase);
             // have the formal v1.x.x
-            if (rx.IsMatch(version))
+            if (rx.IsMatch(version1) && rx.IsMatch(version2))
             {
-                string[] modVersion = version.Split('.');
-                string[] target = modLoderVersion.Split('.');
-                
-                if(modVersion.Length == target.Length)
+                string[] modVersion = version1.Split('.');
+                string[] target = version2.Split('.');
+
+                if (modVersion.Length == target.Length)
                 {
                     for (short index = 0; index < target.Length; index++)
                     {
@@ -145,13 +245,30 @@ namespace ModLoader
                         }
                     }
                     // have the format and is valid version for this modloader version
-                    return true; 
+                    return true;
 
                 }
-               
+
             }
             return false;
-        } 
+        }
+
+        private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+        {
+            Debug.Log("Scene change to "+scene.name);
+        }
+
+        /// <summary>
+        /// suscribe to scene change event
+        /// </summary>
+        /// <param name="method">method what do you want to suscribe</param>
+        /// <returns>true if subscribed</returns>
+        public bool suscribeOnChangeScene(UnityAction<Scene, LoadSceneMode> method)
+        {
+            SceneManager.sceneLoaded += method;
+            return true;
+        }
+
 
         /// <summary>
         /// This is the mod loader entry point, this is the method execute after be injected in the game

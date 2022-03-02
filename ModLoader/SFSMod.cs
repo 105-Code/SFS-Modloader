@@ -10,15 +10,20 @@ namespace ModLoader
     /// </summary>
     public abstract class SFSMod
     {
-
+        private string _modId;
         private string _name;
         private string _author;
         private string _modLoderVersion;
         private string _version;
         private string _description;
-        //private Type[] _dependencies;
+        private SFSModDependencie[] _dependencies;
         private AssetBundle _assets;
         private string _assetsFilename;
+
+        public string ModId
+        {
+            get { return this._modId; }
+        }
 
         /// <summary>
         ///     Get mod name
@@ -63,10 +68,10 @@ namespace ModLoader
         /// <summary>
         ///     get the list of mods need it to work.
         /// </summary>
-        //public Type[] Dependencies
-        //{
-        //    get { return this._dependencies; }
-        //}
+        public SFSModDependencie[] Dependencies
+        {
+            get { return this._dependencies; }
+        }
 
         /// <summary>
         ///     get the assets used for this mod.
@@ -77,14 +82,15 @@ namespace ModLoader
         }
 
 
-        protected SFSMod(string name, string author, string modLoderVersion, string version, string description = "", string assetsFilename = null /*,Type[] dependencies = null*/ )
+        protected SFSMod(string id,string name, string author, string modLoderVersion, string version, string description = "", string assetsFilename = null , SFSModDependencie[] dependencies = null )
         {
+            _modId = id;
             _name = name;
             _author = author;
             _modLoderVersion = modLoderVersion;
             _version = version;
             _description = description;
-            //_dependencies = dependencies;
+            _dependencies = dependencies;
             _assetsFilename = assetsFilename;
         }
 
