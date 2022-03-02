@@ -70,20 +70,20 @@ namespace ModLoader
 		private void log(string message)
 		{
 			Console.WriteLine($"LOG: {message}");
-			this.logFile.AppendText($"LOG: {message}");
+			this.logFile.AppendText($"LOG: {message} \n");
 		}
 
 		private void error(string message)
 		{
 			Console.WriteLine($"ERROR: {message}");
-			this.logFile.AppendText($"ERROR: {message}");
+			this.logFile.AppendText($"ERROR: {message}\n");
 		}
 
 		private void exception(string message, string stackTrace)
 		{
 			Console.WriteLine($"EXCEPTION: {message}");
 			Console.WriteLine(stackTrace);
-			this.logFile.AppendText($"EXCEPTION: {message}");
+			this.logFile.AppendText($"EXCEPTION: {message}\n");
 			this.logFile.AppendText(stackTrace);
 		}
 
@@ -91,7 +91,7 @@ namespace ModLoader
 		{
 			Console.WriteLine($"WARNING: {message}");
 			Console.WriteLine(stackTrace);
-			this.logFile.AppendText($"WARNING: {message}");
+			this.logFile.AppendText($"WARNING: {message}\n");
 			this.logFile.AppendText(stackTrace);
 		}
 
