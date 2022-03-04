@@ -19,6 +19,7 @@ namespace ModLoader
 
         // This save Loader instance
         public static Loader main;
+        private Console _console;
 
         // This save the gameObject that implement Loader class
         public static GameObject root;
@@ -73,9 +74,22 @@ namespace ModLoader
                 catch (Exception e)
                 {
                     Debug.LogException(e);
+                    this._modList.Remove(mod.ModId);
                 }
             }
+            this.postloading();
+            Debug.Log("All Ready");
         }
+
+        private void postloading()
+        {
+            this._console = Console.root.GetComponent<Console>();
+            this._console.ConsoleGui.Mods = this.getMods();
+            this._console.ConsoleGui.SceneGameObjects = UnityEngine.Object.FindObjectsOfType<GameObject>();
+        }
+
+        //this._consoleGui.Mods = Loader.main.getMods();
+        //Loader.main.suscribeOnChangeScene(this.OnSceneLoaded);
 
         /// <summary>
         /// get mod instance.
@@ -85,6 +99,16 @@ namespace ModLoader
         public SFSMod getMod(string modId)
         {
             return this._modList[modId];
+        }
+
+        public SFSMod[] getMods()
+        {
+            List<SFSMod>mods = new List<SFSMod>();
+            foreach(SFSMod mod in this._modList.Values)
+            {
+                mods.Add(mod);
+            }
+            return mods.ToArray();
         }
 
         /// <summary>
@@ -256,6 +280,11 @@ namespace ModLoader
         private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
         {
             Debug.Log("Scene change to "+scene.name);
+            if (this._console)
+            {
+                this._console.ConsoleGui.SceneGameObjects = UnityEngine.Object.FindObjectsOfType<GameObject>();
+            }
+           
         }
 
         /// <summary>
