@@ -13,7 +13,7 @@ using UnityEngine.Events;
 namespace ModLoader
 {
     /// <summary>
-    /// This is the main class of ModLoader. this class is injected into the game whit Unity Doorstop injector.
+    /// This is the main class of ModLoader. this class is injected into the game with Unity Doorstop injector.
     /// </summary>
     public class Loader : MonoBehaviour
     {
@@ -24,7 +24,7 @@ namespace ModLoader
 
         private static Harmony patcher;
 
-        // Thiss save Loader instance
+        // This save Loader instance
         public static Loader modLoader;
 
         // This save the gameObject that implement Loader class
