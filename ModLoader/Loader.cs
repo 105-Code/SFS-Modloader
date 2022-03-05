@@ -74,7 +74,6 @@ namespace ModLoader
                 catch (Exception e)
                 {
                     Debug.LogException(e);
-                    this._modList.Remove(mod.ModId);
                 }
             }
             this.postloading();
@@ -170,20 +169,21 @@ namespace ModLoader
         /// </summary>
         /// <param name="dependencies"> list of dependecies that you need to load first</param>
         /// <returns> true if all dependecies have been loaded </returns>
-        private bool loadDependencies(SFSModDependencie[] dependencies)
+        private bool loadDependencies(Dictionary<string, string[]> dependencies)
         {
+ 
             // for each mod dependencie
-            foreach(SFSModDependencie dependencie in dependencies)
+            foreach (var item in dependencies)
             {
                 // exist mod in the list?
-                if (this._modList.ContainsKey(dependencie.ModId))
+                if (this._modList.ContainsKey(item.Key))
                 {
                     // get mod dependecie
-                    SFSMod dependencieMod = this._modList[dependencie.ModId];
+                    SFSMod dependencieMod = this._modList[item.Key];
 
                     // verify if the dependencie version is the same that mod need
                     bool versionFlag = false;
-                    foreach(string version in dependencie.Versions)
+                    foreach(string version in item.Value)
                     {
                         if(verifyVersion(dependencieMod.Version, version))
                         {
@@ -201,7 +201,7 @@ namespace ModLoader
                     }
                 }
                 // dependencie not exist or is diferent version
-                throw new Exception("Is necesary install " + dependencie.ModId +" "+ string.Join(", ", dependencie.Versions));
+                throw new Exception("Is necesary install " + item.Key +" "+ string.Join(", ", item.Value));
             }
             return true;
         }

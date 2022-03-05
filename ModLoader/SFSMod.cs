@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
@@ -16,7 +17,7 @@ namespace ModLoader
         private string _modLoderVersion;
         private string _version;
         private string _description;
-        private SFSModDependencie[] _dependencies;
+        private Dictionary<string, string[]> _dependencies;
         private AssetBundle _assets;
         private string _assetsFilename;
 
@@ -68,7 +69,7 @@ namespace ModLoader
         /// <summary>
         ///     get the list of mods need it to work.
         /// </summary>
-        public SFSModDependencie[] Dependencies
+        public Dictionary<string, string[] > Dependencies
         {
             get { return this._dependencies; }
         }
@@ -82,7 +83,7 @@ namespace ModLoader
         }
 
 
-        protected SFSMod(string id,string name, string author, string modLoderVersion, string version, string description = "", string assetsFilename = null , SFSModDependencie[] dependencies = null )
+        protected SFSMod(string id,string name, string author, string modLoderVersion, string version, string description = "", string assetsFilename = null , Dictionary<string, string[]> dependencies = null )
         {
             _modId = id;
             _name = name;
