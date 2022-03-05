@@ -14,13 +14,15 @@ namespace ModLoader
         [HarmonyPostfix]
         public static void Postfix(BaseAssigner __instance)
         {
-            GameObject gameObject = new GameObject();
+            GameObject gameObject = new GameObject("Modloader Object");
+            gameObject.AddComponent<Helper>();
+            gameObject.AddComponent<ModsMenu>();
             gameObject.AddComponent<Loader>();
             UnityEngine.Object.DontDestroyOnLoad(gameObject);
             gameObject.SetActive(true);
             Loader.root = gameObject;
             Loader.baseAssigner = __instance;
         }
- 
+
     }
 }
