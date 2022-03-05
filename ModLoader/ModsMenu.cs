@@ -8,6 +8,7 @@ namespace ModLoader
 {
     public class ModsMenu : MonoBehaviour
     {
+        private ModLoader.Console _console;
         // Events
         public static event EventHandler OnMainWindowGUI_Start;
         public static event EventHandler OnMainWindowGUI_Build;
@@ -54,6 +55,7 @@ namespace ModLoader
 
         public void Start()
         {
+            this._console= ModLoader.Console.root.GetComponent<ModLoader.Console>();
             Create_Textures();
         }
 
@@ -62,6 +64,10 @@ namespace ModLoader
         /// </summary>
         public void OnGUI()
         {
+            if (this._console.ConsoleGui.IsVisible)
+            {
+
+            
             switch (Helper.currentScene)
             {
                 case scene.Base:
@@ -115,6 +121,7 @@ namespace ModLoader
                         worldSideWindowRect = GUI.Window(worldSideWindowID, worldSideWindowRect, WorldSideWindow, "", windowBackgroundStyle);
                     }
                     break;
+            }
             }
         }
 
