@@ -21,6 +21,8 @@ namespace ModLoader
             Console.root = modConsole;
             loader.AddComponent<Loader>();
             modConsole.AddComponent<Console>();
+            modConsole.AddComponent<Helper>();
+            modConsole.AddComponent<ModsMenu>();
 
             UnityEngine.Object.DontDestroyOnLoad(modConsole);
             UnityEngine.Object.DontDestroyOnLoad(loader);
@@ -28,6 +30,6 @@ namespace ModLoader
             loader.SetActive(true);
             modConsole.SetActive(true);
         }
- 
+
     }
 }

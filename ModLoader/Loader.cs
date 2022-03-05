@@ -12,7 +12,7 @@ using System.Text.RegularExpressions;
 namespace ModLoader
 {
     /// <summary>
-    /// This is the main class of ModLoader. this class is injected into the game whit Unity Doorstop injector.
+    /// This is the main class of ModLoader. this class is injected into the game with Unity Doorstop injector.
     /// </summary>
     public class Loader : MonoBehaviour
     {
