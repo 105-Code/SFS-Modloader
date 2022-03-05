@@ -33,7 +33,7 @@ namespace ModLoader
         private int _activeTab;
 
         // tab list
-        public string[] tabs = new string[] { "Console", "Scene", "Mods" };
+        public string[] tabs = new string[] { "Console", "Scene" };
 
         // store all logs in game
         private GUIContent _logs;
@@ -153,9 +153,9 @@ namespace ModLoader
                 case 1:
                     this.sceneTab();
                     break;
-                case 2:
+                /*case 2:
                     this.modsTab();
-                    break;
+                    break;*/
             }
             GUI.DragWindow();
         }
@@ -175,7 +175,7 @@ namespace ModLoader
             GUI.EndScrollView();
         }
 
-        private void modsTab()
+        /*private void modsTab()
         {
             this._consoleheight = this._consoleStyle.CalcHeight(this._mods, this._consoleRect.width - 20f);
             if (this._consoleheight < this._consoleRect.height - 60f)
@@ -188,7 +188,7 @@ namespace ModLoader
             GUI.Box(new Rect(10, 0, this._consoleRect.width - 30f, this._consoleheight), this._mods, this._consoleStyle);
 
             GUI.EndScrollView();
-        }
+        }*/
 
         private void sceneTab()
         {
