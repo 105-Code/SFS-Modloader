@@ -22,7 +22,7 @@ namespace ModLoader
             loader.AddComponent<Loader>();
             modConsole.AddComponent<Console>();
             modConsole.AddComponent<Helper>();
-            modConsole.AddComponent<ModsMenu>();
+            //modConsole.AddComponent<ModsMenu>();
 
             UnityEngine.Object.DontDestroyOnLoad(modConsole);
             UnityEngine.Object.DontDestroyOnLoad(loader);

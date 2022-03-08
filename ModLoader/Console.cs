@@ -31,7 +31,6 @@ namespace ModLoader
 			string date = string.Format("{0:yyyy-MM-dd}", DateTime.UtcNow);
 			this.logFile = FileLocations.BaseFolder.Extend("logs").CreateFolder().ExtendToFile(date+".txt");
 		}
-		
 
 		private void OnEnable()
 		{

@@ -76,16 +76,16 @@ namespace ModLoader
                     Debug.LogException(e);
                 }
             }
-            this.postloading();
+            //this.postloading();
             Debug.Log("All Ready");
         }
 
-        private void postloading()
+        /*private void postloading()
         {
             this._console = Console.root.GetComponent<Console>();
             this._console.ConsoleGui.Mods = this.getMods();
             this._console.ConsoleGui.SceneGameObjects = UnityEngine.Object.FindObjectsOfType<GameObject>();
-        }
+        }*/
 
         //this._consoleGui.Mods = Loader.main.getMods();
         //Loader.main.suscribeOnChangeScene(this.OnSceneLoaded);
@@ -280,10 +280,10 @@ namespace ModLoader
         private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
         {
             Debug.Log("Scene change to "+scene.name);
-            if (this._console)
+            /*if (this._console)
             {
                 this._console.ConsoleGui.SceneGameObjects = UnityEngine.Object.FindObjectsOfType<GameObject>();
-            }
+            }*/
            
         }
 
