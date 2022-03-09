@@ -1,5 +1,5 @@
 # SFS Modloader
-_Simple modloader for Space Flight Simulator PC version._
+_Simple modloader for Space Flight Simulator PC version. MacOS fixes by pixelgaming579._
 
 ## English
 ### How to install SFS Modloader 🚀
