@@ -9,7 +9,7 @@ namespace ModLoader
     class BaseAssignerAw
     {
         /// <summary>
-        /// This function start the modloader into the game
+        /// This function starts the modloader in the game.
         /// </summary>
         [HarmonyPostfix]
         public static void Postfix(BaseAssigner __instance)

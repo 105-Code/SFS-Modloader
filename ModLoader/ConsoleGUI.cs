@@ -31,13 +31,13 @@ namespace ModLoader
             set { this._isVisible = value; }
         }
 
-        // identify what tab render
+        // identify which tab to render
         private int _activeTab;
 
         // tab list
         //public string[] tabs = new string[] { "Console System", "Scene Information" };
 
-        // store all logs in game
+        // store all records in the game
         private GUIContent _logs;
         public string Logs
         {
@@ -45,7 +45,12 @@ namespace ModLoader
             {
 
                 this._logs.text += value;
-                this._consoleHeightRect.height = this._consoleStyle.CalcHeight(this._logs, this._consoleRect.width);
+                float newHeight = this._consoleStyle.CalcHeight(this._logs, this._consoleRect.width);
+                if (newHeight > this._consoleHeightRect.height)
+                {
+                    this._consoleHeightRect.height = newHeight;
+                }
+                
                 if (this._activeTab == 0 && this._scrollConsole.y > this._consoleRect.height * 0.6)
                 {
                    
@@ -126,7 +131,7 @@ namespace ModLoader
         void Start()
         {
             this._consoleStyle.normal.textColor = Color.white;
-            this._consoleStyle.fontSize = 14;
+            this._consoleStyle.fontSize = 16;
             this._consoleStyle.padding.left = 10;
             this._consoleStyle.normal.background = this.makeTexture(new Color32(0, 0, 0, 160));
 

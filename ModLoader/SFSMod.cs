@@ -35,7 +35,7 @@ namespace ModLoader
         }
 
         /// <summary>
-        ///     Get who create this mod
+        ///     Get who creates this mod
         /// </summary>
         public string Author
         {
@@ -43,7 +43,7 @@ namespace ModLoader
         }
 
         /// <summary>
-        ///     Get what modloader version need
+        ///     Get what version of modloader this mod needs
         /// </summary>
         /// <value>
         ///     v1.0.x
@@ -59,7 +59,7 @@ namespace ModLoader
         }
 
         /// <summary>
-        ///     get a descripton about what do this mod
+        ///    get a description about what this mod does
         /// </summary>
         public string Description
         {
@@ -67,7 +67,7 @@ namespace ModLoader
         }
 
         /// <summary>
-        ///     get the list of mods need it to work.
+        ///    Get the list of mods you need to run.
         /// </summary>
         public Dictionary<string, string[] > Dependencies
         {
@@ -96,7 +96,7 @@ namespace ModLoader
         }
 
         /// <summary>
-        /// This method load assets from mod folder
+        /// This method loads assets from the mod folder.
         /// </summary>
         public void loadAssets()
         {
