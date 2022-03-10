@@ -27,7 +27,7 @@ namespace ModLoader
         private static FolderPath _modsFolder;
 
         // modlaoder version
-        private const string modLoderVersion = "v1.1.1";
+        private const string modLoderVersion = "v1.1.2";
 
         public static FolderPath ModsFolder
         {
