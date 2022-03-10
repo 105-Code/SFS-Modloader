@@ -45,17 +45,25 @@ namespace ModLoader
             {
 
                 this._logs.text += value;
-                float newHeight = this._consoleStyle.CalcHeight(this._logs, this._consoleRect.width);
-                if (newHeight > this._consoleHeightRect.height)
+                if (this._isVisible)
                 {
-                    this._consoleHeightRect.height = newHeight;
+                    this.setConsoleHeight();
                 }
-                
-                if (this._activeTab == 0 && this._scrollConsole.y > this._consoleRect.height * 0.6)
-                {
-                   
-                    this._scrollConsole.y = this._consoleHeightRect.height;
-                }
+            }
+        }
+
+        private void setConsoleHeight()
+        {
+            float newHeight = this._consoleStyle.CalcHeight(this._logs, this._consoleRect.width);
+            if (newHeight > this._consoleHeightRect.height)
+            {
+                this._consoleHeightRect.height = newHeight;
+            }
+
+            if (this._activeTab == 0 && this._scrollConsole.y > this._consoleRect.height * 0.6)
+            {
+
+                this._scrollConsole.y = this._consoleHeightRect.height;
             }
         }
         /*
@@ -167,6 +175,10 @@ namespace ModLoader
             if (Input.GetKeyDown(KeyCode.F1))
             {
                 this._isVisible = !this._isVisible;
+                if (this._isVisible)
+                {
+                    this.setConsoleHeight();
+                }
             }
         }
 
