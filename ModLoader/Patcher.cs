@@ -1,4 +1,4 @@
-﻿using HarmonyLib;
+using HarmonyLib;
 using SFS;
 using System;
 using UnityEngine;
@@ -19,8 +19,9 @@ namespace ModLoader
             GameObject loader = new GameObject("ModLoader");
             Loader.root = loader;
             Console.root = modConsole;
-            loader.AddComponent<Loader>();
             modConsole.AddComponent<Console>();
+            modConsole.SetActive(true);
+            loader.AddComponent<Loader>();
             modConsole.AddComponent<Helper>();
             //modConsole.AddComponent<ModsMenu>();
 
@@ -28,8 +29,6 @@ namespace ModLoader
             UnityEngine.Object.DontDestroyOnLoad(loader);
 
             loader.SetActive(true);
-            modConsole.SetActive(true);
         }
-
     }
 }

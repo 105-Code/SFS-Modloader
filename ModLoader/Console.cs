@@ -30,7 +30,9 @@ namespace ModLoader
 			this._consoleGui = Console.root.GetComponent<ConsoleGUI>();
 			string date = string.Format("{0:yyyy-MM-dd}", DateTime.UtcNow);
 			this.logFile = FileLocations.BaseFolder.Extend("logs").CreateFolder().ExtendToFile(date+".txt");
-		}
+			// Clear log content on startup
+            logFile.WriteText("");
+        }
 
 		private void OnEnable()
 		{

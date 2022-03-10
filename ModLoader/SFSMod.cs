@@ -69,7 +69,7 @@ namespace ModLoader
         /// <summary>
         ///    Get the list of mods you need to run.
         /// </summary>
-        public Dictionary<string, string[] > Dependencies
+        public Dictionary<string, string[]> Dependencies
         {
             get { return this._dependencies; }
         }
@@ -82,8 +82,7 @@ namespace ModLoader
             get { return this._assets; }
         }
 
-
-        protected SFSMod(string id,string name, string author, string modLoderVersion, string version, string description = "", string assetsFilename = null , Dictionary<string, string[]> dependencies = null )
+        protected SFSMod(string id, string name, string author, string modLoderVersion, string version, string description = "", string assetsFilename = null, Dictionary<string, string[]> dependencies = null)
         {
             _modId = id;
             _name = name;
@@ -100,7 +99,7 @@ namespace ModLoader
         /// </summary>
         public void loadAssets()
         {
-            if(this._assetsFilename == null || this._assetsFilename == "")
+            if (string.IsNullOrEmpty(this._assetsFilename))
             {
                 return;
             }
@@ -111,11 +110,18 @@ namespace ModLoader
             {
                 throw new Exception("Assets file not found");
             }
+
             this._assets = assets;
-            
-            Debug.Log(this._name+" assets loaded!");
+
+            Debug.Log(this._name + " assets loaded!");
         }
 
+        /// <summary>
+        ///     This method is called before Base's components are fully initialized allowing for hooking in their initialization 
+        /// </summary>
+        public virtual void early_load()
+        {
+        }
 
         /// <summary>
         ///     This method is called for modloader to start your mod 
@@ -126,6 +132,5 @@ namespace ModLoader
         ///     This method is called for modloader to remove your mod. 
         /// </summary>
         public abstract void unload();
-
     }
 }
