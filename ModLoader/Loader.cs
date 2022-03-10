@@ -239,7 +239,7 @@ namespace ModLoader
         /// <returns>True if they are valid versions</returns>
         private bool verifyVersion(string version1, string version2)
         {
-            Regex rx = new Regex(@"\bv([0-9]|[1-9][0-9]).([0-9]|[1-9][0-9]|x).([0-9]|[1-9][0-9]|x)\b", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+            Regex rx = new Regex(@"\bv([0-9]+)(\.([0-9]+|x)){2}\b", RegexOptions.Compiled | RegexOptions.IgnoreCase);
             // has the format v1.x.x
             if (rx.IsMatch(version1) && rx.IsMatch(version2))
             {
