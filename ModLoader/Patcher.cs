@@ -3,6 +3,7 @@ using SFS;
 using UnityEngine;
 using ModLoader.IO;
 using SFS.Input;
+using ModLoader.UI;
 
 namespace ModLoader
 {
@@ -24,7 +25,7 @@ namespace ModLoader
             modConsole.SetActive(true);
             loader.AddComponent<Loader>();
             modConsole.AddComponent<Helper>();
-            //modConsole.AddComponent<ModsMenu>();
+            modConsole.AddComponent<ModsMenu>();
 
             UnityEngine.Object.DontDestroyOnLoad(modConsole);
             UnityEngine.Object.DontDestroyOnLoad(loader);

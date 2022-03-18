@@ -9,6 +9,11 @@ using UnityEngine.SceneManagement;
 using UnityEngine.Events;
 using System.IO;
 using System.Text.RegularExpressions;
+using SFS.UI;
+using SFS.Input;
+using SFS.Adapter;
+using SFS.Translations;
+using ModLoader.UI;
 
 namespace ModLoader
 {
@@ -83,6 +88,28 @@ namespace ModLoader
             }
 
             Debug.Log("Loading finished");
+            this.postInit();
+        }
+
+        private void postInit()
+        {
+            GameObject modsButton = GameObject.Instantiate(GameObject.Find("Exit Button"));
+            ButtonPC buttonPC = modsButton.GetComponent<ButtonPC>();
+            TextAdapter textAdapter = modsButton.GetComponentInChildren<TextAdapter>();
+            Destroy(modsButton.GetComponent<TranslationSelector>());
+            modsButton.name = "Mods Button";
+            textAdapter.Text = "MODS";// add text button
+
+            //click events
+            buttonPC.holdEvent = new HoldUnityEvent();
+            buttonPC.clickEvent = new ClickUnityEvent();
+            buttonPC.clickEvent.AddListener(delegate (OnInputEndData data) {
+                ModsMenu.Main.Open();
+            });
+
+            // screen position
+            modsButton.transform.SetParent(GameObject.Find("Buttons").transform);
+            buttonPC.transform.localScale = new Vector3(1,1,1);
         }
 
         /// <summary>
