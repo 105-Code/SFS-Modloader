@@ -99,8 +99,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Console.cs" />
-    <Compile Include="ConsoleGUI.cs" />
+    <Compile Include="IO\Console.cs" />
+    <Compile Include="IO\ConsoleGUI.cs" />
     <Compile Include="Helper.cs" />
     <Compile Include="Loader.cs" />
     <Compile Include="ModsMenu.cs" />

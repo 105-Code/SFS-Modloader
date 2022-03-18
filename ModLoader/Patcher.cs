@@ -1,7 +1,8 @@
 using HarmonyLib;
 using SFS;
-using System;
 using UnityEngine;
+using ModLoader.IO;
+using SFS.Input;
 
 namespace ModLoader
 {
@@ -29,6 +30,17 @@ namespace ModLoader
             UnityEngine.Object.DontDestroyOnLoad(loader);
 
             loader.SetActive(true);
+        }
+    }
+
+    [HarmonyPatch(typeof(InputManager), "ApplyDrag")]
+    class InputManagerApplyDrag
+    {
+
+        [HarmonyPrefix]
+        public static bool Prefix()
+        {
+            return !Console.Main.ConsoleGui.IsVisible;
         }
     }
 }
