@@ -32,7 +32,7 @@ namespace ModLoader
         private static FolderPath _modsFolder;
 
         // modlaoder version
-        private const string modLoderVersion = "v1.1.2";
+        private const string modLoderVersion = "v1.2.0";
 
         public static FolderPath ModsFolder
         {
@@ -50,7 +50,6 @@ namespace ModLoader
         private void Awake()
         {
             Loader.main = this;
-            SceneManager.sceneLoaded += this.OnSceneLoaded;
             _modsFolder = FileLocations.BaseFolder.Extend("MODS").CreateFolder();
 
             Debug.Log("Early loading mods");
@@ -119,8 +118,14 @@ namespace ModLoader
         /// <returns>instance mod</returns>
         public SFSMod getMod(string modId)
         {
-            this._modList.TryGetValue(modId, out SFSMod result);
-            return result;
+            foreach(SFSMod mod in this._modsLoaded)
+            {
+                if(mod.ModId == modId)
+                {
+                    return mod;
+                }
+            }
+            return null;
         }
 
         /// <summary>
@@ -129,7 +134,7 @@ namespace ModLoader
         /// <returns> Loaded mods </returns>
         public SFSMod[] getMods()
         {
-            return _modList.Values.ToArray();
+            return this._modsLoaded.ToArray();
         }
 
         /// <summary>
@@ -239,7 +244,7 @@ namespace ModLoader
             Debug.Log("Loading " + mod.Name);
 
             // check if the version is valid for this modloader version
-            if (verifyVersion(mod.ModLoderVersion, modLoderVersion))
+            if (verifyVersion(mod.ModLoderVersion, modLoderVersion,true))
             {
                 // Does it have dependencies?
                 if (mod.Dependencies != null)
@@ -264,7 +269,7 @@ namespace ModLoader
         /// <param name="version1"> version to check</param>
         /// <param name="version2"> verison to check</param>
         /// <returns>True if they are valid versions</returns>
-        private bool verifyVersion(string version1, string version2)
+        private bool verifyVersion(string version1, string version2, bool checkMinVersion = false)
         {
             Regex rx = new Regex(@"\bv([0-9]+)(\.([0-9]+|x)){2}\b", RegexOptions.Compiled | RegexOptions.IgnoreCase);
             // has the format v1.x.x
@@ -277,14 +282,28 @@ namespace ModLoader
                 {
                     for (short index = 0; index < target2.Length; index++)
                     {
-                        if (target1[index] == "x")
+                        if (target1[index] == "x" || target1[index] == target2[index])
                         {
                             continue;
                         }
-                        if (target1[index] != target2[index])
+
+                        if (checkMinVersion)
                         {
-                            return false;
+                            int num1, num2;
+                            if (int.TryParse(target1[index], out num1))
+                            {
+                                if(int.TryParse(target2[index], out num2))
+                                {
+
+                                    if(num1 <= num2)
+                                    {
+                                    
+                                        continue;
+                                    }
+                                }
+                            }
                         }
+                        return false;
                     }
                     //both are valid for each other
                     return true;
@@ -293,11 +312,6 @@ namespace ModLoader
 
             }
             return false;
-        }
-
-        private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
-        {
-            Debug.Log("Scene change to " + scene.name);
         }
 
         /// <summary>
