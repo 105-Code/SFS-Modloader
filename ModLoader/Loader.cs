@@ -52,6 +52,8 @@ namespace ModLoader
             Loader.main = this;
             _modsFolder = FileLocations.BaseFolder.Extend("MODS").CreateFolder();
 
+            Debug.Log($"--- ModLoader {modLoderVersion} ---");
+
             Debug.Log("Early loading mods");
             this._modList = this.getModList();
 
@@ -144,6 +146,9 @@ namespace ModLoader
         private Dictionary<string, SFSMod> getModList()
         {
             Dictionary<string, SFSMod> modList = new Dictionary<string, SFSMod>();
+
+            // find if the user misplaced the dll file
+            this.detectIndividualDlls();
 
             // get a list of mod folders in the MODS folder
             IEnumerable<FolderPath> modsFolders = _modsFolder.GetFoldersInFolder(false);
@@ -312,6 +317,41 @@ namespace ModLoader
 
             }
             return false;
+        }
+
+        /// <summary>
+        /// This function looks in the MODS folder for incorrectly installed mods and moves them to a new folder 
+        /// where they should be.
+        /// </summary>
+        private void detectIndividualDlls()
+        {
+            try
+            {
+                Debug.Log("Searching mods improperly installed");
+                FolderPath newFolder;
+                foreach (FilePath file in _modsFolder.GetFilesInFolder(false))
+                {
+           
+                    if(file.Extension == "dll")
+                    {
+                        Debug.Log($"{file.FileName} incorrectly installed!");
+                        newFolder = _modsFolder.Extend(file.CleanFileName);
+                        if (!newFolder.FolderExists())
+                        {
+                            newFolder = newFolder.CreateFolder();
+                        }
+                        Debug.Log($"{file.FileName} moved!");
+                        file.Move(newFolder.ExtendToFile(file.FileName));
+                        _modsFolder = FileLocations.BaseFolder.Extend("MODS");
+                    }
+                }
+                Debug.Log("Everything moved!");
+            }
+            catch(Exception e)
+            {
+                Debug.LogException(e);
+                Debug.Log("Failed to check for incorrectly installed mods!");
+            }
         }
 
         /// <summary>
