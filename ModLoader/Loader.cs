@@ -75,6 +75,12 @@ namespace ModLoader
             }
 
             Debug.Log("Early load finished");
+            Helper.OnHomeSceneLoaded += this.OnGomeSceneLoaded;
+        }
+
+        private void OnGomeSceneLoaded(object sender, EventArgs args)
+        {
+            this.insertModsButton();
         }
 
         /// <summary>
@@ -89,10 +95,10 @@ namespace ModLoader
             }
 
             Debug.Log("Loading finished");
-            this.postInit();
+            this.insertModsButton();
         }
 
-        private void postInit()
+        private void insertModsButton()
         {
             GameObject modsButton = GameObject.Instantiate(GameObject.Find("Exit Button"));
             ButtonPC buttonPC = modsButton.GetComponent<ButtonPC>();

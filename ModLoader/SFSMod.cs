@@ -43,7 +43,7 @@ namespace ModLoader
         }
 
         /// <summary>
-        ///     Get what version of modloader this mod needs
+        ///     Get what min version of modloader this mod needs
         /// </summary>
         /// <value>
         ///     v1.0.x
