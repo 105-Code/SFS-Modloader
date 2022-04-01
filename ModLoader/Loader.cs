@@ -14,29 +14,37 @@ using SFS.Input;
 using SFS.Adapter;
 using SFS.Translations;
 using ModLoader.UI;
+using ModLoader.Helpers;
 
 namespace ModLoader
 {
     /// <summary>
-    /// This is the main class of ModLoader. this class is injected into the game with the Unity Doorstop injector.
+    ///     This is the main class of ModLoader. this class is injected into the game with the Unity Doorstop injector.
     /// </summary>
     public class Loader : MonoBehaviour
     {
-        // This save Loader instance
-        public static Loader main;
-        //private Console _console;
 
-        // This save the gameObject that implement Loader class
+        /// <summary>
+        ///     This save Loader instance
+        /// </summary>
+        public static Loader main;
+
+        /// <summary>
+        ///     This save the gameObject that implement Loader class
+        /// </summary>
         public static GameObject root;
 
-        private static FolderPath _modsFolder;
+        /// <summary>
+        ///     Current Modlaoder version
+        /// </summary>
+        private const string modLoderVersion = "v1.3.0";
 
-        // modlaoder version
-        private const string modLoderVersion = "v1.2.0";
-
+        /// <summary>
+        ///     Get folder where mods are
+        /// </summary>
         public static FolderPath ModsFolder
         {
-            get { return _modsFolder; }
+            get { return FileLocations.BaseFolder.Extend("MODS"); }
         }
 
         private List<SFSMod> _modsLoaded = new List<SFSMod>();
@@ -45,12 +53,12 @@ namespace ModLoader
         private Dictionary<string, SFSMod> _modList;
 
         /// <summary>
-        /// First executed method. Save the loader instance to static var, subscribe to the scene event and load mods for early patches.
+        ///     First executed method. Save the loader instance to static var, subscribe to the scene event and load mods for early patches.
         /// </summary>
         private void Awake()
         {
             Loader.main = this;
-            _modsFolder = FileLocations.BaseFolder.Extend("MODS").CreateFolder();
+            FolderPath modsFolder = ModsFolder.CreateFolder();
 
             Debug.Log($"--- ModLoader {modLoderVersion} ---");
 
@@ -75,26 +83,29 @@ namespace ModLoader
             }
 
             Debug.Log("Early load finished");
-            Helper.OnHomeSceneLoaded += this.OnGomeSceneLoaded;
+            SceneHelper.OnHomeSceneLoaded += this.OnHomeSceneLoaded;
         }
 
-        private void OnGomeSceneLoaded(object sender, EventArgs args)
+        /// <summary>
+        ///     Is called when Home scenes has been loaded
+        /// </summary>
+        /// <param name="sender">Who send this event</param>
+        /// <param name="scene">Scene information</param>
+        private void OnHomeSceneLoaded(object sender, Scene scene)
         {
             this.insertModsButton();
         }
 
         /// <summary>
-        /// This method starts reading mods and runs automatically when this class is created after the Awake method.
+        ///     This method starts reading mods and runs automatically when this class is created after the Awake method.
         /// </summary>
         private void Start()
         {
-            Debug.Log("Loading mods");
+            Debug.Log("Starting mods");
             foreach (SFSMod mod in _modsLoaded)
             {
                 mod.load();
             }
-
-            Debug.Log("Loading finished");
             this.insertModsButton();
         }
 
@@ -120,7 +131,7 @@ namespace ModLoader
         }
 
         /// <summary>
-        /// get mod instance.
+        ///     Get mod instance.
         /// </summary>
         /// <param name="modId">Mod ID you need</param>
         /// <returns>instance mod</returns>
@@ -137,7 +148,7 @@ namespace ModLoader
         }
 
         /// <summary>
-        /// Get a list of all loaded mods
+        ///     Get a list of all loaded mods
         /// </summary>
         /// <returns> Loaded mods </returns>
         public SFSMod[] getMods()
@@ -157,7 +168,7 @@ namespace ModLoader
             this.detectIndividualDlls();
 
             // get a list of mod folders in the MODS folder
-            IEnumerable<FolderPath> modsFolders = _modsFolder.GetFoldersInFolder(false);
+            IEnumerable<FolderPath> modsFolders = ModsFolder.GetFoldersInFolder(false);
             string basePath = Path.Combine(FileLocations.BaseFolder, "MODS");
 
             foreach (FolderPath folder in modsFolders)
@@ -201,10 +212,14 @@ namespace ModLoader
         }
 
         /// <summary>
-        /// Load the mod dependencies and check if it is already loaded and check its version.
+        ///     Load the mod dependencies and check if it is already loaded and check its version.
         /// </summary>
-        /// <param name="dependencies"> lista de dependencias que necesitas cargar primero</param>
-        /// <returns> verdadero si se han cargado todas las dependencias</returns>
+        /// <param name="dependencies"> 
+        ///     List of dependencies that need to be loaded first
+        /// </param>
+        /// <returns> 
+        ///     True if all dependencies have been loaded
+        /// </returns>
         private bool loadDependencies(Dictionary<string, string[]> dependencies)
         {
             // for each mod dependency
@@ -241,9 +256,11 @@ namespace ModLoader
         }
 
         /// <summary>
-        /// Start checking mod version and run load method
+        ///     Start checking mod version and run load method
         /// </summary>
-        /// <param name="mod">Mod to start load</param>
+        /// <param name="mod">
+        ///     Mod to start load
+        /// </param>
         private void loadMod(SFSMod mod)
         {
             // has this mod been loaded?, if it does not start loading
@@ -275,11 +292,20 @@ namespace ModLoader
         }
 
         /// <summary>
-        /// Check the string of two versions to identify if they are the same
+        ///     Check the string of two versions to identify if they are the same
         /// </summary>
-        /// <param name="version1"> version to check</param>
-        /// <param name="version2"> verison to check</param>
-        /// <returns>True if they are valid versions</returns>
+        /// <param name="version1"> 
+        ///     Version to check
+        /// </param>
+        /// <param name="version2"> 
+        ///     Verison to check
+        /// </param>
+        /// <param name="checkMinVersion">
+        ///     check if version 1 is is less than or equal to version 2
+        /// </param>
+        /// <returns>   
+        ///     True if they are valid versions
+        /// </returns>
         private bool verifyVersion(string version1, string version2, bool checkMinVersion = false)
         {
             Regex rx = new Regex(@"\bv([0-9]+)(\.([0-9]+|x)){2}\b", RegexOptions.Compiled | RegexOptions.IgnoreCase);
@@ -288,7 +314,7 @@ namespace ModLoader
             {
                 string[] target1 = version1.Split('.');
                 string[] target2 = version2.Split('.');
-
+                int num1, num2;
                 if (target1.Length == target2.Length)
                 {
                     for (short index = 0; index < target2.Length; index++)
@@ -300,7 +326,7 @@ namespace ModLoader
 
                         if (checkMinVersion)
                         {
-                            int num1, num2;
+                            
                             if (int.TryParse(target1[index], out num1))
                             {
                                 if(int.TryParse(target2[index], out num2))
@@ -326,8 +352,8 @@ namespace ModLoader
         }
 
         /// <summary>
-        /// This function looks in the MODS folder for incorrectly installed mods and moves them to a new folder 
-        /// where they should be.
+        ///     This function looks in the MODS folder for incorrectly installed mods and moves them to a new folder 
+        ///     where they should be.
         /// </summary>
         private void detectIndividualDlls()
         {
@@ -335,23 +361,21 @@ namespace ModLoader
             {
                 Debug.Log("Searching mods improperly installed");
                 FolderPath newFolder;
-                foreach (FilePath file in _modsFolder.GetFilesInFolder(false))
+                foreach (FilePath file in ModsFolder.GetFilesInFolder(false))
                 {
            
                     if(file.Extension == "dll")
                     {
                         Debug.Log($"{file.FileName} incorrectly installed!");
-                        newFolder = _modsFolder.Extend(file.CleanFileName);
+                        newFolder = ModsFolder.Extend(file.CleanFileName);
                         if (!newFolder.FolderExists())
                         {
                             newFolder = newFolder.CreateFolder();
                         }
                         Debug.Log($"{file.FileName} moved!");
                         file.Move(newFolder.ExtendToFile(file.FileName));
-                        _modsFolder = FileLocations.BaseFolder.Extend("MODS");
                     }
                 }
-                Debug.Log("Everything moved!");
             }
             catch(Exception e)
             {
@@ -361,7 +385,7 @@ namespace ModLoader
         }
 
         /// <summary>
-        /// This is the mod loader entry point, this is the method that is executed after being injected into the game.
+        ///     This is the mod loader entry point, this is the method that is executed after being injected into the game.
         /// </summary>
         /// <param name="args"></param>
         public static void Main(string[] args)

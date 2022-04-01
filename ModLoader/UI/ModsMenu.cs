@@ -13,6 +13,9 @@ namespace ModLoader.UI
     /// </summary>
     public class ModsMenu : BasicMenu
 	{
+		/// <summary>
+		/// Store the ModsMenu instance
+		/// </summary>
 		public static ModsMenu Main;
 		
 		private void Awake()

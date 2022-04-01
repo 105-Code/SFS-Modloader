@@ -95,7 +95,7 @@ namespace ModLoader.UI
             }
         }
 
-        public void modInformation(SFSMod mod)
+        private void modInformation(SFSMod mod)
         {
 
             GUILayout.BeginVertical(this._modInformationStyle,GUILayout.Width(this._windowsPosition.width-20));

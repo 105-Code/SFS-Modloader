@@ -1,6 +1,8 @@
-﻿using System;
+﻿using SFS.IO;
+using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using UnityEngine;
 
 namespace ModLoader
@@ -21,6 +23,20 @@ namespace ModLoader
         private AssetBundle _assets;
         private string _assetsFilename;
 
+        /// <summary>
+        ///     Get folder where is store this mod
+        /// </summary>
+        public string ModFolder
+        {
+            get
+            {
+                return Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "\\";
+            }
+        }
+
+        /// <summary>
+        ///     Get Mod ID This ID is used to identify each mod. There cannot be two mods with the same ID
+        /// </summary>
         public string ModId
         {
             get { return this._modId; }
@@ -53,13 +69,16 @@ namespace ModLoader
             get { return this._modLoderVersion; }
         }
 
+        /// <summary>
+        ///     Get mod version.
+        /// </summary>
         public string Version
         {
             get { return this._version; }
         }
 
         /// <summary>
-        ///    get a description about what this mod does
+        ///    Get a description about what this mod does
         /// </summary>
         public string Description
         {
@@ -75,13 +94,29 @@ namespace ModLoader
         }
 
         /// <summary>
-        ///     get the assets used for this mod.
+        ///     Get the assets used for this mod.
         /// </summary>
         public AssetBundle Assets
         {
             get { return this._assets; }
         }
 
+        /// <summary>
+        ///     This is the entry point for all modifications.
+        /// </summary>
+        /// <param name="id">Unique id for your mod</param>
+        /// <param name="name">Mod name</param>
+        /// <param name="author">who created this mod?</param>
+        /// <param name="modLoderVersion"> What minimum version of modloader do you need?</param>
+        /// <param name="version">What version of your mod is it?</param>
+        /// <param name="description">What can your mod do?</param>
+        /// <param name="assetsFilename">Do you need an assetbundle? charge it</param>
+        /// <param name="dependencies">Do you need another mod to work? check it</param>
+        /// <example>
+        /// public ExampleMod():base("exampleMod", "Example Mod", "My description", "v1.x.x", "v1.0.0"){
+        /// 
+        /// }
+        /// </example>
         protected SFSMod(string id, string name, string author, string modLoderVersion, string version, string description = "", string assetsFilename = null, Dictionary<string, string[]> dependencies = null)
         {
             _modId = id;
@@ -104,7 +139,7 @@ namespace ModLoader
                 return;
             }
 
-            string assetFilePath = Path.Combine(FileLocations.BaseFolder, "MODS", this._name, this._assetsFilename);
+            string assetFilePath = Path.Combine(this.ModFolder, this._assetsFilename);
             AssetBundle assets = AssetBundle.LoadFromFile(assetFilePath);
             if (assets == null)
             {

@@ -2,7 +2,9 @@
 
 namespace ModLoader.IO
 {
-
+    /// <summary>
+    /// This class is used to display console GUI.
+    /// </summary>
     public class ConsoleGUI : MonoBehaviour
     {
         // show in what position is the scroll of console
@@ -10,6 +12,10 @@ namespace ModLoader.IO
 
         // show if the console is visible for user
         private bool _isVisible;
+
+        /// <summary>
+        /// Get if the console gui is visible or not
+        /// </summary>
         public bool IsVisible
         {
             get { return this._isVisible; }
@@ -17,6 +23,10 @@ namespace ModLoader.IO
 
         // store all records in the game
         private GUIContent _logs;
+        
+        /// <summary>
+        /// Set console text
+        /// </summary>
         public string Logs
         {
             set

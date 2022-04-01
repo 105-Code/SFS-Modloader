@@ -6,17 +6,30 @@ using UnityEngine;
 
 namespace ModLoader.IO
 {
-
+	/// <summary>
+	/// This is the mod loader console. It is used for debugging and displaying errors.
+	/// </summary>
 	public class Console : MonoBehaviour
 	{
+		/// <summary>
+		/// Store the main Console instance
+		/// </summary>
 		public static Console Main;
+		/// <summary>
+		/// Store the gameobject that implements the Console class
+		/// </summary>
 		public static GameObject root;
 
 		private ConsoleGUI _consoleGui;
+
+		/// <summary>
+		/// Store the ConsoleGui instance
+		/// </summary>
 		public ConsoleGUI ConsoleGui
 		{
 			get { return this._consoleGui; }
 		}
+
 		private const int _maxLines = 150;
 		private FilePath logFile;
 		private Queue<string> _queue;
@@ -47,7 +60,7 @@ namespace ModLoader.IO
 		}
 
 		/// <summary>
-		/// process all game logs
+		/// Process all game logs
 		/// </summary>
 		/// <param name="message">log message </param>
 		/// <param name="stackTrace"> error stackTrace </param>
