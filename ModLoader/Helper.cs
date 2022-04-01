@@ -8,6 +8,10 @@ using UnityEngine.SceneManagement;
 
 namespace ModLoader
 {
+    /// <summary>
+    /// General helper for scenes. Do not use it, it will change in future versions
+    /// </summary>
+    [Obsolete("Helper is deprecated, please use SceneHelper instead.")]
     public class Helper : MonoBehaviour
     {
         public static Helper instance;
