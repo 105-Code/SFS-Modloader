@@ -199,7 +199,7 @@ namespace ModLoader
                     {
                         throw new Exception("There is already another mod with id " + mod.ModId);
                     }
-
+                    mod.ModFolder = Path.Combine(basePath, folder.FolderName);
                     modList.Add(mod.ModId, mod);
                 }
                 catch (Exception e)
@@ -382,6 +382,14 @@ namespace ModLoader
                 Debug.LogException(e);
                 Debug.Log("Failed to check for incorrectly installed mods!");
             }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public void test()
+        {
+
         }
 
         /// <summary>

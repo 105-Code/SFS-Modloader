@@ -22,6 +22,7 @@ namespace ModLoader
         private Dictionary<string, string[]> _dependencies;
         private AssetBundle _assets;
         private string _assetsFilename;
+        private string _modFolder;
 
         /// <summary>
         ///     Get folder where is store this mod
@@ -30,7 +31,11 @@ namespace ModLoader
         {
             get
             {
-                return Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "\\";
+                return this._modFolder;
+            }
+            set
+            {
+                this._modFolder = value;
             }
         }
 
