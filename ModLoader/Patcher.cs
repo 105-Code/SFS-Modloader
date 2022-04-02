@@ -6,6 +6,8 @@ using SFS.Input;
 using ModLoader.UI;
 using System.Reflection;
 using System;
+using ModLoader.Helpers;
+using SFS.UI;
 
 namespace ModLoader
 {
@@ -21,17 +23,23 @@ namespace ModLoader
             // console start first
             GameObject modConsole = new GameObject("ModConsole");
             GameObject loader = new GameObject("ModLoader");
+            GameObject helpers = new GameObject("Helpers");
+
             Loader.root = loader;
             IO.Console.root = modConsole;
+
             modConsole.AddComponent<IO.Console>();
             modConsole.SetActive(true);
+
             loader.AddComponent<Loader>();
-            modConsole.AddComponent<Helper>();
             modConsole.AddComponent<ModsMenu>();
 
+            helpers.AddComponent<SceneHelper>();
+            helpers.AddComponent<Helper>(); // remove for v2.0.0
 
             UnityEngine.Object.DontDestroyOnLoad(modConsole);
             UnityEngine.Object.DontDestroyOnLoad(loader);
+            UnityEngine.Object.DontDestroyOnLoad(helpers);
 
             loader.SetActive(true);
         }
@@ -40,51 +48,41 @@ namespace ModLoader
     [HarmonyPatch(typeof(KeybindingsPC), "Awake")]
     class KeybindingsPCAwake
     {
-        
+        /// <summary>
+        ///     Start after Awake at KeybindingsPC. This is used to create mod key bindings.
+        /// </summary>
+        /// <param name="__instance">KeybidnigsPc class instance. is used to get prefabs</param>
         [HarmonyPostfix]
         public static void Postfix(KeybindingsPC __instance)
         {
+            ModSettings modSettings = __instance.gameObject.AddComponent<ModSettings>();
+            modSettings.TextPrefab = __instance.textPrefab;
+            modSettings.KeybindingPrefab = __instance.keybindingPrefab;
+            modSettings.KeybindingsHolder = __instance.keybindingsHolder;
+            modSettings.SpacePrefab = __instance.spacePrefab;
+        }
+    }
 
-
-            /*Debug.Log("Settings created");
-            MethodInfo createText = __instance.GetType().GetMethod("CreateText",
-            BindingFlags.NonPublic | BindingFlags.Instance);
-            createText.Invoke(__instance, new object[] { "MODS" });
-
-
-            foreach (Component component in __instance.textPrefab.GetComponentsInChildren<Component>())
-            {
-                Debug.Log(component);
-            }
-
-            KeybindingsPC.Key openConsole = KeyCode.F1;
-            string message = "Show_Console";
-            MethodInfo create = __instance.GetType().GetMethod("Create",
-            BindingFlags.NonPublic | BindingFlags.Instance,
-            null, new Type[] { openConsole.GetType(), openConsole.GetType(), message.GetType() }, null);
-
-            Debug.Log("Invoke Method");
-            create.Invoke(__instance, new object[] { openConsole, openConsole, message });*/
-            Debug.Log("Object");
-            foreach (Component compoennt in __instance.gameObject.GetComponents<Component>())
-            {
-                Debug.Log(compoennt);
-            }
-            Debug.Log("Children");
-            foreach (Component compoennt in __instance.gameObject.GetComponentsInChildren<Component>())
-            {
-                Debug.Log(compoennt);
-            }
-
-
-
+    [HarmonyPatch(typeof(KeybindingsPC), "ResetKeybindings")]
+    class KeybindingsPCResetKeybindings
+    {
+        /// <summary>
+        ///     Start after ResetKeybindings at KeybindingsPC. This is used to reset keybindings for mods.
+        /// </summary>
+        [HarmonyPostfix]
+        public static void Postfix()
+        {
+            ModSettings.main.resetKeybindings();
         }
     }
 
     [HarmonyPatch(typeof(InputManager), "ApplyDrag")]
     class InputManagerApplyDrag
     {
-
+        /// <summary>
+        ///    Start before ApplyDrag at InputManager. This is used to prevent drag input when the mmodloader console is open.
+        /// </summary>
+        /// <returns> False to prevent drag input or true to continue</returns>
         [HarmonyPrefix]
         public static bool Prefix()
         {

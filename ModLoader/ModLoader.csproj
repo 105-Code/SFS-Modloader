@@ -31,7 +31,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Release\documentation.xml</DocumentationFile>
+    <DocumentationFile>bin\Release\ModLoader.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="0Harmony, Version=2.2.0.0, Culture=neutral, processorArchitecture=MSIL">
@@ -104,8 +104,10 @@
     <Compile Include="IO\ConsoleGUI.cs" />
     <Compile Include="Helper.cs" />
     <Compile Include="Helpers\KeybindingHelper.cs" />
+    <Compile Include="IO\ModSettings.cs" />
     <Compile Include="Loader.cs" />
     <Compile Include="Helpers\SceneHelper.cs" />
+    <Compile Include="Mod\SFSSettings.cs" />
     <Compile Include="UI\ModsMenu.cs" />
     <Compile Include="Patcher.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
