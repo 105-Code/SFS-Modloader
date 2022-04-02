@@ -2,13 +2,14 @@
 using SFS.Input;
 using SFS.World;
 using System;
+using UnityEngine;
 
 namespace ModLoader.Helpers
 {
     /// <summary>
     /// Use this class if you need add key events.
     /// </summary>
-    static class KeybindingHelper
+    public class KeybindingHelper
     {
 
         /// <summary>
@@ -16,10 +17,18 @@ namespace ModLoader.Helpers
         /// </summary>
         /// <param name="key">key to trigger the event</param>
         /// <param name="action"> is executed when the event occurs</param>
+        /// <example>
+        ///     KeybindingHelper.AddOnKeyDownWorld(Keycode.T, this.myMethod);
+        /// </example>
         public static void AddOnKeyDownWorld(I_Key key, Action action)
         {
-            GameManager.main.world_Input.keysNode.AddOnKeyDown(key, action);
-            GameManager.main.map_Input.keysNode.AddOnKeyDown(key, action);
+            if (GameManager.main != null)
+            {
+                GameManager.main.world_Input.keysNode.AddOnKeyDown(key, action);
+                GameManager.main.map_Input.keysNode.AddOnKeyDown(key, action);
+                return;
+            }
+            Debug.LogError("This method only works in World Scene");
         }
 
         /// <summary>
@@ -27,9 +36,17 @@ namespace ModLoader.Helpers
         /// </summary>
         /// <param name="key">key to trigger the event</param>
         /// <param name="action"> is executed when the event occurs</param>
+        /// <example>
+        ///     KeybindingHelper.AddOnKeyDownBuilder(Keycode.T, this.myMethod);
+        /// </example>
         public static void AddOnKeyDownBuilder(I_Key key, Action action)
         {
-            BuildManager.main.build_Input.keysNode.AddOnKeyDown(key, action);
+            if (BuildManager.main != null)
+            {
+                BuildManager.main.build_Input.keysNode.AddOnKeyDown(key, action);
+                return;
+            }
+            Debug.LogError("This method only works in Builder Scene");
         }
     }
 }
