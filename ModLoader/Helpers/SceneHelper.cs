@@ -12,7 +12,7 @@ namespace ModLoader.Helpers
     /// Trigger events related to scene change
     /// </summary>
     /// Authors: RYAN8990, dani0105
-    class SceneHelper : MonoBehaviour
+    public class SceneHelper : MonoBehaviour
     {
         /// <summary>
         /// Fired when the Base Scene (the first scene when game loads) is loaded
