@@ -37,6 +37,7 @@ namespace ModLoader.UI
             this._modInformationStyle.margin.top = 10;
 
             this._modInformationTextStyle.fontSize = 20;
+            this._modInformationTextStyle.padding.top = 3;
             this._modInformationTextStyle.normal.textColor = Color.white;
 
             this._titleStyle.fontSize = 30;
@@ -100,12 +101,10 @@ namespace ModLoader.UI
 
             GUILayout.BeginVertical(this._modInformationStyle,GUILayout.Width(this._windowsPosition.width-20));
 
-            GUILayout.BeginHorizontal();
-            GUILayout.Label($"Mod: {mod.Name}",this._modInformationTextStyle);
-            GUILayout.Label($"Version: {mod.Version}", this._modInformationTextStyle);
+            GUILayout.Label($"Mod: {mod.Name} {mod.Version}",this._modInformationTextStyle);
             GUILayout.Label($"Author: {mod.Author}", this._modInformationTextStyle);
-            GUILayout.EndHorizontal();
-            GUILayout.Label($"Description:\n{mod.Description}", this._modInformationTextStyle);
+            string description = mod.Description != "" ? mod.Description : "N/A";
+            GUILayout.Label($"Description:\n{description}", this._modInformationTextStyle);
             //bool click = GUILayout.Button("Config");
             GUILayout.EndVertical();
         }
