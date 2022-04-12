@@ -178,7 +178,8 @@ namespace ModLoader.IO
 
         private void save(SFSSettings modSettings)
         {
-            FolderPath folder = new FolderPath(modSettings.getModFolder()).Extend("Settings").CreateFolder();
+            SFSMod mod =Loader.main.getMod(modSettings.getModId());
+            FolderPath folder = new FolderPath(mod.ModFolder).Extend("Settings").CreateFolder();
             FilePath settingsFile = folder.ExtendToFile("keybindings.json");
             string text = JsonWrapper.ToJson(modSettings, true);
             settingsFile.WriteText(text);

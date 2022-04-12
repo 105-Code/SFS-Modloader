@@ -39,18 +39,5 @@ namespace ModLoader.Mod
         /// </example>
         string getModId();
 
-        /// <summary>
-        ///     Get mod folder. This is used to load and store your keybindings.
-        /// </summary>
-        /// <returns>
-        ///     My folder Path
-        /// </returns>
-        /// <example>
-        /// public string getModFolder(){
-        ///     return MyMod.main.ModFolder;
-        /// }
-        /// </example>
-        string getModFolder();
-
     }
 }
