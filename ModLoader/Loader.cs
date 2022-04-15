@@ -385,14 +385,6 @@ namespace ModLoader
         }
 
         /// <summary>
-        /// 
-        /// </summary>
-        public void test()
-        {
-
-        }
-
-        /// <summary>
         ///     This is the mod loader entry point, this is the method that is executed after being injected into the game.
         /// </summary>
         /// <param name="args"></param>
