@@ -315,6 +315,7 @@ namespace ModLoader
                 string[] target1 = version1.Split('.');
                 string[] target2 = version2.Split('.');
                 int num1, num2;
+                bool minor = false;
                 if (target1.Length == target2.Length)
                 {
                     for (short index = 0; index < target2.Length; index++)
@@ -323,18 +324,22 @@ namespace ModLoader
                         {
                             continue;
                         }
-
+                        // check if version1 is MIN that version2
                         if (checkMinVersion)
                         {
-                            
+                            // the previous section was MIN, if it was min the rest are MIN too
+                            if (minor)
+                            {
+                                continue;
+                            }
                             if (int.TryParse(target1[index], out num1))
                             {
                                 if(int.TryParse(target2[index], out num2))
                                 {
-
-                                    if(num1 <= num2)
+                                    // the version1 section is MIN that version 2 section
+                                    if(num1 < num2) 
                                     {
-                                    
+                                        minor = true;
                                         continue;
                                     }
                                 }
