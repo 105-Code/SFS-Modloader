@@ -34,6 +34,8 @@ namespace ModLoader
         /// </summary>
         public static GameObject root;
 
+        private static readonly Regex version_regex = new Regex(@"\bv([0-9]+)(\.([0-9]+|x)){2}\b", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
         /// <summary>
         ///     Current Modlaoder version
         /// </summary>
@@ -232,7 +234,7 @@ namespace ModLoader
                     bool versionFlag = false;
                     foreach (string version in item.Value)
                     {
-                        if (verifyVersion(dependency.Version, version))
+                        if (verifyVersion(version, dependency.Version))
                         {
                             versionFlag = true;
                             break;
@@ -294,49 +296,45 @@ namespace ModLoader
         /// <summary>
         ///     Check the string of two versions to identify if they are the same
         /// </summary>
-        /// <param name="version1"> 
+        /// <param name="targetVersion"> 
         ///     Version to check
         /// </param>
-        /// <param name="version2"> 
+        /// <param name="currentVersion"> 
         ///     Verison to check
         /// </param>
-        /// <param name="checkMinVersion">
-        ///     check if version 1 is is less than or equal to version 2
+        /// <param name="lessOrEqual">
+        ///     Check if targetVersion is less than or equal to currentVersion
         /// </param>
-        /// <returns>   
-        ///     True if they are valid versions
-        /// </returns>
-        private bool verifyVersion(string version1, string version2, bool checkMinVersion = false)
+        private bool verifyVersion(string targetVersion, string currentVersion, bool lessOrEqual = false)
         {
-            Regex rx = new Regex(@"\bv([0-9]+)(\.([0-9]+|x)){2}\b", RegexOptions.Compiled | RegexOptions.IgnoreCase);
             // has the format v1.x.x
-            if (rx.IsMatch(version1) && rx.IsMatch(version2))
+            if (version_regex.IsMatch(targetVersion) && version_regex.IsMatch(currentVersion))
             {
-                string[] target1 = version1.Split('.');
-                string[] target2 = version2.Split('.');
-                int num1, num2;
+                string[] target = targetVersion.Split('.');
+                string[] current = currentVersion.Split('.');
+
                 bool minor = false;
-                if (target1.Length == target2.Length)
+                if (target.Length == current.Length)
                 {
-                    for (short index = 0; index < target2.Length; index++)
+                    for (short index = 0; index < current.Length; index++)
                     {
-                        if (target1[index] == "x" || target1[index] == target2[index])
+                        if (target[index] == "x" || target[index] == current[index])
                         {
                             continue;
                         }
-                        // check if version1 is MIN that version2
-                        if (checkMinVersion)
+                        // check if targetVersion is MIN that currentVersion
+                        if (lessOrEqual)
                         {
                             // the previous section was MIN, if it was min the rest are MIN too
                             if (minor)
                             {
                                 continue;
                             }
-                            if (int.TryParse(target1[index], out num1))
+                            if (int.TryParse(target[index], out int num1))
                             {
-                                if(int.TryParse(target2[index], out num2))
+                                if(int.TryParse(current[index], out int num2))
                                 {
-                                    // the version1 section is MIN that version 2 section
+                                    // the targetVersion section is MIN that version 2 section
                                     if(num1 < num2) 
                                     {
                                         minor = true;
