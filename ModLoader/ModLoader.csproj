@@ -114,9 +114,9 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   
   <!-- After build copy dll file into managed folder and start the game -->
-  <Target Name="AfterBuild">
+  <Target Name="AfterBuild" Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <Copy SourceFiles="bin\Release\ModLoader.dll" DestinationFolder="$(ManagedFolder)" ContinueOnError="true" />
     <Exec Command="start steam://rungameid/1718870"/>
   </Target>
-  
+
 </Project>
