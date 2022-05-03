@@ -1,5 +1,5 @@
 # SFS Modloader
-_Simple modloader for Space Flight Simulator PC version._
+_Simple modloader for Spaceflight Simulator PC version._
 
 <br/>
 
