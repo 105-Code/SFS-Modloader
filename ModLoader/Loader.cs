@@ -37,7 +37,7 @@ namespace ModLoader
         /// <summary>
         ///     Current Modlaoder version
         /// </summary>
-        private const string modLoderVersion = "v1.3.1";
+        private const string modLoderVersion = "v1.3.2";
 
         /// <summary>
         ///     Get folder where mods are
